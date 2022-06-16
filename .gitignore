@@ -2,5 +2,6 @@
 !.gitignore
 !.gitignore.global
 !.zshrc
+!push_branch_to_stage.rb
 !README.md
 
