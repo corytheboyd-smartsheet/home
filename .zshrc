@@ -170,7 +170,6 @@ function gik() {
 # MY CONFIGURATION END
 # ######################
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # ##########################
 # BRANDFOLDER CONFIG START
@@ -296,90 +295,14 @@ function conp() {
     ENV=prod ./gke-run.sh prod boulder-web "$@"
 }
 
-# Take the current branch and put it on stage.
-function push_to_stage() {
-    error "🙅‍♀️ This just isn't safe enough. Also, move it to a Ruby script you heathen 🙅‍♀️"
-    return 1
-
-    if ! command -v jq >/dev/null; then
-        brew install jq
-    fi
-
-    database_file="$HOME/boulder_stage_deploy_history.sqlite"
-    echo '
-    CREATE TABLE IF NOT EXISTS
-    deployments (
-        branch_name TEXT NOT NULL,
-        commit_sha TEXT NOT NULL
-    )' | sqlite3 "$database_file"
-
-    # memoize current branch name
-    main_branch="$(git_current_branch)"
-
-    info "🔫 reset local stage from origin"
-    git checkout stage
-    git reset --hard origin/stage
-    git pull
-
-    info "💽 load previous squash commit"
-    previous_squash_commit_sha=$(echo "
-    SELECT * FROM deployments
-    WHERE branch_name = '$main_branch'
-    ORDER BY rowid DESC
-    LIMIT 1
-    " | sqlite3 -json "$database_file" | \
-    jq -r ".[0].commit_sha" 2>/dev/null)
-    info "💽 got previous squash commit: $previous_squash_commit_sha" #"
-
-    if [ -n "$previous_squash_commit_sha" ]; then
-        if git cat-file -t $previous_squash_commit_sha 2>/dev/null; then
-            info "⏪ reverting previous squash commit"
-            git revert --no-edit "$previous_squash_commit_sha"
-        else
-            warn "🥺 someone clobbered your previous squash commit"
-            info "💽 reset state because it means nothing now"
-            echo '
-            DELETE FROM deployments
-            WHERE branch_name = '$main_branch'
-            ' | sqlite3 "$database_file"
-        fi
-    else
-        info "🧼 no previous cherry pick commit"
-    fi
-
-    if [[ $1 = 'revert' ]]; then
-        warn "🥐 only reverting previous squash merge"
-
-        info "🫣  pushing revert of $previous_squash_commit_sha to stage"
-        git push
-    else
-        info "🤏 squash $main_branch into stage"
-        git merge --squash --no-commit "$main_branch"
-        git commit --no-edit
-        squash_commit_sha=$(git rev-parse HEAD)
-
-        info "💽 persist squashed commit sha: $squash_commit_sha" #"
-        echo "
-        INSERT INTO deployments
-        VALUES ('$main_branch', '$squash_commit_sha')
-        " | sqlite3 "$database_file"
-
-        info "🫣  pushing squashed $main_branch to stage"
-        git push
-    fi
-    return 0
-
-    info "🎒 return to $main_branch" #"
-    git checkout "$main_branch"
-}
-
 # ##########################
 # BRANDFOLDER CONFIG END
 # ##########################
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 # Load rbenv automatically by appending
 # the following to ~/.zshrc:
-
 eval "$(rbenv init - zsh)"
 
 export NVM_DIR="$HOME/.nvm"
