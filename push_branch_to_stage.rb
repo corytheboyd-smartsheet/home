@@ -71,8 +71,7 @@ class Runner
 
       if stage_branch.contains?(previous_commit_sha)
         logger.info('Reverting previous commit')
-        # git.revert(previous_commit_sha)
-        `git revert --no-edit -m1 #{previous_commit_sha}`
+         git.revert(previous_commit_sha)
       else
         logger.warn('Previous commit sha removed from stage branch')
         state.delete(previous_commit_sha)
