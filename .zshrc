@@ -166,6 +166,15 @@ function gik() {
     git reset
 }
 
+# list git featyre branches (ex: `cb/feature-branch`) deleted upstream.
+function git_merged_feature_branches() {
+    git branch -vv | \
+        grep ': gone]' |  \
+        grep --invert-match "\*" | \
+        awk '{ print $1; }' | \
+        grep -E "^(?:[a-zA-Z0-9_-]+\/)(?:[a-zA-Z0-9_-]+\/?)+"
+}
+
 # ######################
 # MY CONFIGURATION END
 # ######################
