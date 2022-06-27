@@ -166,13 +166,39 @@ function gik() {
     git reset
 }
 
-# list git featyre branches (ex: `cb/feature-branch`) deleted upstream.
+# list merged feature branches (ex: `cb/feature-branch`)
 function git_merged_feature_branches() {
+    git fetch --all -p >/dev/null
     git branch -vv | \
         grep ': gone]' |  \
         grep --invert-match "\*" | \
         awk '{ print $1; }' | \
-        grep -E "^(?:[a-zA-Z0-9_-]+\/)(?:[a-zA-Z0-9_-]+\/?)+"
+        grep --color=never -E "^(?:[a-zA-Z0-9_-]+\/)(?:[a-zA-Z0-9_-]+\/?)+"
+}
+
+# delete all merged feature branches
+function git_delete_merged_feature_branches() {
+    for branch in $(git_merged_feature_branches) ; do
+        echo "Deleting branch: $branch"
+        git branch -D "$branch"
+    done
+}
+
+function git_change_base_branch() {
+    function usage() {
+        echo "Usage: git_change_base_branch NEW_BASE OLD_BASE\n\tNEW_BASE branch to rebase onto\n\tOLD_BASE previous base branch"
+    }
+    new_base="$1"
+    old_base="$2"
+    if [ -z "$new_base" ]; then
+        usage
+        return;
+    fi
+    if [ -z "$old_base" ]; then
+        usage
+        return;
+    fi
+    git rebase --onto "$new_base" "$old_base" $(git_current_branch)
 }
 
 # ######################
