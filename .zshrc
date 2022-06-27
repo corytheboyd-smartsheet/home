@@ -320,14 +320,14 @@ function gke_run() {
 
 # Runs a long-running `boulder-web` stage container
 function con() {
-    cd ~/code/docker-images/bf-shared-gke-shell
-    ./gke-run.sh stage boulder-web "$@"
+    (cd ~/code/docker-images/bf-shared-gke-shell
+    ./gke-run.sh stage boulder-web "$@")
 }
 
 # Runs a long-running `boulder-web` prod container
 function conp() {
-    cd ~/code/docker-images/bf-shared-gke-shell
-    ENV=prod ./gke-run.sh prod boulder-web "$@"
+    (cd ~/code/docker-images/bf-shared-gke-shell
+    ENV=prod ./gke-run.sh prod boulder-web "$@")
 }
 
 # ##########################
