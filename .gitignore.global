@@ -1,2 +1,4 @@
 .DS_STORE
 ~/code/boulder/.editorconfig
+~/code/boulder/spec/cory_spec.rb
+
