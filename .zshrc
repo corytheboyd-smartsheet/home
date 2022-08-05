@@ -258,30 +258,28 @@ function gke_proxy() {
         warn "gke_proxy already running. pid=$running_gke_proxy_port"
         return
     fi
-    cd ~/code/terraform/squads/platform/bf-shared-gke/scripts
-    ./start-gke-proxy.sh "$@"
+    (
+        cd ~/code/terraform/squads/platform/bf-shared-gke/scripts
+        ./start-gke-proxy.sh "$@"
+    )
 }
 
-# Start kubernetes proxy for stage
-function kp() {
+function gke_proxy_stage() {
     export port=9443
     gke_proxy stage -p "$port"
 }
 
-# Start kubernetes proxy for prod
-function kpp() {
+function gke_proxy_prod() {
     export port=9444
     gke_proxy prod -p "$port"
 }
 
-# Start kubernetes proxy for prod us-central-1
-function kppc() {
+function gke_proxy_prod_us_central_1() {
     export port=9445
     gke_proxy prod -c us-c1-1
 }
 
-# Start k9s for kp proxy (stage)
-function kn() {
+function k9s_stage() {
     port=9443
     if [ -z "$(lsof -i:$port)" ]; then
         error "proxy not running, start it with: kp"
@@ -290,8 +288,7 @@ function kn() {
     HTTPS_PROXY="localhost:$port" k9s
 }
 
-# Start k9s for kpp proxy (prod)
-function knp() {
+function k9s_prod() {
     port=9444
     if [ -z "$(lsof -i:$port)" ]; then
         error "proxy not running, start it with: kpp"
@@ -300,8 +297,7 @@ function knp() {
     HTTPS_PROXY="localhost:$port" k9s
 }
 
-# Start k9s for kppc proxy (prod us-central-1)
-function knpc() {
+function k9s_prod_us_central_1() {
     port=9445
     if [ -z "$(lsof -i:$port)" ]; then
         error "proxy not running, start it with: kppc"
@@ -310,24 +306,18 @@ function knpc() {
     HTTPS_PROXY="localhost:$port" k9s
 }
 
-function gke_run() {
-    port=9443
-    if [ -z "$(lsof -i:$port)" ]; then
-        error "proxy not running, start it with: kp"
-        return
-    fi
+function gke_run_sh_stage() {
+    (
+        cd ~/code/docker-images/bf-shared-gke-shell
+        ./gke-run.sh stage boulder-web "$@"
+    )
 }
 
-# Runs a long-running `boulder-web` stage container
-function con() {
-    (cd ~/code/docker-images/bf-shared-gke-shell
-    ./gke-run.sh stage boulder-web "$@")
-}
-
-# Runs a long-running `boulder-web` prod container
-function conp() {
-    (cd ~/code/docker-images/bf-shared-gke-shell
-    ENV=prod ./gke-run.sh prod boulder-web "$@")
+function gke_run_sh_prod() {
+    (
+        cd ~/code/docker-images/bf-shared-gke-shell
+        ENV=prod ./gke-run.sh prod boulder-web "$@"
+    )
 }
 
 # ##########################
