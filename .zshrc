@@ -201,6 +201,10 @@ function git_change_base_branch() {
     git rebase --onto "$new_base" "$old_base" $(git_current_branch)
 }
 
+function dcp() {
+    docker compose "$@"
+}
+
 # ######################
 # MY CONFIGURATION END
 # ######################
