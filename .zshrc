@@ -347,3 +347,8 @@ compctl -g '~/.itermocil/*(:t:r)' itermocil
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+# Add gvm path
+export GVM_ROOT="$HOME/.gvm"
+[[ -s "/Users/cboyd/.gvm/scripts/gvm" ]] && source "/Users/cboyd/.gvm/scripts/gvm"
+
