@@ -324,6 +324,22 @@ function gke_run_sh_prod() {
     )
 }
 
+function dank_textify() {
+    awk '{
+        res="";
+        split($0,a,//);
+        for(i = 0; i < length(a); i++) {
+            c=tolower(a[i+1]);
+            if(match(c,/[a-z]/)) {
+                res = res ":alphabet-white-" c ":"
+            } else {
+                res = res c
+            }
+        }
+        print res
+    }'
+}
+
 # ##########################
 # BRANDFOLDER CONFIG END
 # ##########################
@@ -351,4 +367,7 @@ export PATH="$PATH:$HOME/.rvm/bin"
 # Add gvm path
 export GVM_ROOT="$HOME/.gvm"
 [[ -s "/Users/cboyd/.gvm/scripts/gvm" ]] && source "/Users/cboyd/.gvm/scripts/gvm"
+
+# brew postgresql@13
+export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"
 
