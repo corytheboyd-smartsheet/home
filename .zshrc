@@ -371,3 +371,7 @@ export GVM_ROOT="$HOME/.gvm"
 # brew postgresql@13
 export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"
 
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit && compinit
+complete -C '/usr/local/bin/aws_completer' aws
+
