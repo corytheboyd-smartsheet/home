@@ -375,3 +375,5 @@ autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
 complete -C '/usr/local/bin/aws_completer' aws
 
+source <(copilot completion zsh)
+copilot completion zsh > "${fpath[1]}/_copilot" # to autoload on startup
