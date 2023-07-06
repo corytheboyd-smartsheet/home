@@ -324,6 +324,13 @@ function gke_run_sh_prod() {
     )
 }
 
+function gke_run_sh_prod_ucs_central_1() {
+    (
+        cd ~/code/docker-images/bf-shared-gke-shell
+        ENV=prod ./gke-run.sh prod boulder-web "$@"
+    )
+}
+
 function dank_textify() {
     awk '{
         res="";
@@ -370,10 +377,6 @@ export GVM_ROOT="$HOME/.gvm"
 
 # brew postgresql@13
 export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"
-
-autoload bashcompinit && bashcompinit
-autoload -Uz compinit && compinit
-complete -C '/usr/local/bin/aws_completer' aws
 
 source <(copilot completion zsh)
 copilot completion zsh > "${fpath[1]}/_copilot" # to autoload on startup
