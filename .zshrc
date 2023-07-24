@@ -115,10 +115,68 @@ source $ZSH/oh-my-zsh.sh
 # MY CONFIGURATION START
 # ######################
 
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+LIME_YELLOW=$(tput setaf 190)
+POWDER_BLUE=$(tput setaf 153)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+BRIGHT=$(tput bold)
+NORMAL=$(tput sgr0)
+BLINK=$(tput blink)
+REVERSE=$(tput smso)
+UNDERLINE=$(tput smul)
+
+function print_datetime() {
+    date -Iminutes
+}
+
+function log_base() {
+    lvl="$1"
+    msg="$2"
+    ts="$(print_datetime)"
+    >&2 echo "${BRIGHT}[$lvl] $ts${NORMAL} $msg"
+}
+
+function log_debug() {
+    log_base "D" "${MAGENTA}$1${NORMAL}"
+}
+
+function log_info() {
+    log_base "I" "${CYAN}$1${NORMAL}"
+}
+
+function log_warn() {
+    log_base "W" "${YELLOW}$1${NORMAL}"
+}
+
+function log_error() {
+    log_base "E" "${RED}$1${NORMAL}"
+}
+
+function confirm() {
+    echo "$1"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) return 0;;
+            No ) return 1;;
+        esac
+    done
+}
+
+
 export EDITOR=$(which vim)
 
 function be() {
     bundle exec "$@"
+}
+
+function r() {
+    bin/rails "$@"
 }
 
 function dgaf() {
@@ -139,31 +197,16 @@ function pick_branch_fzf() {
     awk '{ print $2 }'
 }
 
+function gbb() {
+    git checkout $(pick_branch_fzf)
+}
+
 function grhu() {
     git reset --hard origin/$(git_current_branch)
 }
 
 function pem_file_to_base64() {
   awk -v ORS='\\n' '1' "$1" | base64
-}
-
-function gbb() {
-    git checkout $(pick_branch_fzf)
-}
-
-function routes() {
-    bin/rails routes | fzf
-}
-
-function r() {
-    bin/rails "$@"
-}
-
-# git interactive keep
-function gik() {
-    git add -p
-    git checkout .
-    git reset
 }
 
 # list merged feature branches (ex: `cb/feature-branch`)
@@ -184,25 +227,24 @@ function git_delete_merged_feature_branches() {
     done
 }
 
-function git_change_base_branch() {
-    function usage() {
-        echo "Usage: git_change_base_branch NEW_BASE OLD_BASE\n\tNEW_BASE branch to rebase onto\n\tOLD_BASE previous base branch"
-    }
-    new_base="$1"
-    old_base="$2"
-    if [ -z "$new_base" ]; then
-        usage
-        return;
+function brew_install_if_necessary() {
+    prog=$1
+    if brew list "$prog" 2>/dev/null; then
+        log_debug "$prog already installed"
+    else
+        log_info "$prod not installed, installing"
+        brew install "$prog"
     fi
-    if [ -z "$old_base" ]; then
-        usage
-        return;
-    fi
-    git rebase --onto "$new_base" "$old_base" $(git_current_branch)
 }
 
-function dcp() {
-    docker compose "$@"
+function ddd() {
+    brew_install_if_necessary "jesseduffield/lazydocker/lazydocker"
+    lazydocker "$@"
+}
+
+function ggg() {
+    brew_install_if_necessary "jesseduffield/lazygit/lazygit"
+    lazygit
 }
 
 # ######################
@@ -213,44 +255,6 @@ function dcp() {
 # ##########################
 # BRANDFOLDER CONFIG START
 # ##########################
-
-BLACK=$(tput setaf 0)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-LIME_YELLOW=$(tput setaf 190)
-POWDER_BLUE=$(tput setaf 153)
-BLUE=$(tput setaf 4)
-MAGENTA=$(tput setaf 5)
-CYAN=$(tput setaf 6)
-WHITE=$(tput setaf 7)
-BRIGHT=$(tput bold)
-NORMAL=$(tput sgr0)
-BLINK=$(tput blink)
-REVERSE=$(tput smso)
-UNDERLINE=$(tput smul)
-
-function info() {
-    >&2 echo "${CYAN}$1${NORMAL}"
-}
-
-function warn() {
-    >&2 echo "${YELLOW}$1${NORMAL}"
-}
-
-function error() {
-     >&2 echo "${RED}$1${NORMAL}"
-}
-
-function confirm() {
-    echo "$1"
-    select yn in "Yes" "No"; do
-        case $yn in
-            Yes ) return 0;;
-            No ) return 1;;
-        esac
-    done
-}
 
 function gke_proxy() {
     if [ -z "$port"  ]; then
