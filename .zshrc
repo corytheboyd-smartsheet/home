@@ -227,23 +227,11 @@ function git_delete_merged_feature_branches() {
     done
 }
 
-function brew_install_if_necessary() {
-    prog=$1
-    if brew list "$prog" 2>/dev/null; then
-        log_debug "$prog already installed"
-    else
-        log_info "$prod not installed, installing"
-        brew install "$prog"
-    fi
-}
-
 function ddd() {
-    brew_install_if_necessary "jesseduffield/lazydocker/lazydocker"
     lazydocker "$@"
 }
 
 function ggg() {
-    brew_install_if_necessary "jesseduffield/lazygit/lazygit"
     lazygit
 }
 
@@ -379,8 +367,8 @@ export PATH="$PATH:$HOME/.rvm/bin"
 export GVM_ROOT="$HOME/.gvm"
 [[ -s "/Users/cboyd/.gvm/scripts/gvm" ]] && source "/Users/cboyd/.gvm/scripts/gvm"
 
-# brew postgresql@13
-export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"
-
 source <(copilot completion zsh)
 copilot completion zsh > "${fpath[1]}/_copilot" # to autoload on startup
+
+export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"
+
