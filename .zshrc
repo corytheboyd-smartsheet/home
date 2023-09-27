@@ -227,6 +227,16 @@ function git_delete_merged_feature_branches() {
     done
 }
 
+function brew_install_if_necessary() {
+    prog=$1
+    if brew list "$prog" 2>/dev/null; then
+        log_debug "$prog already installed"
+    else
+        log_info "$prod not installed, installing"
+        brew install "$prog"
+    fi
+}
+
 function ddd() {
     lazydocker "$@"
 }
@@ -251,7 +261,7 @@ function gke_proxy() {
     fi
     running_gke_proxy_port="$(lsof -ti:$port)" 
     if [ -n "$running_gke_proxy_port" ]; then
-        warn "gke_proxy already running. pid=$running_gke_proxy_port"
+        log_warn "gke_proxy already running. pid=$running_gke_proxy_port"
         return
     fi
     (
@@ -371,4 +381,6 @@ source <(copilot completion zsh)
 copilot completion zsh > "${fpath[1]}/_copilot" # to autoload on startup
 
 export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"
+
+# export PATH="$PATH:$HOME/ngrok-local-magic/bin"
 
