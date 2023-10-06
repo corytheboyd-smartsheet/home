@@ -185,7 +185,7 @@ function dgaf() {
     git clean -df
 }
 
-function pick_branch_fzf() {
+function git_pick_branch() {
   git branch \
       --color \
       --list \
@@ -198,7 +198,7 @@ function pick_branch_fzf() {
 }
 
 function gbb() {
-    git checkout $(pick_branch_fzf)
+    git checkout $(git_pick_branch)
 }
 
 function grhu() {
