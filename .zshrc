@@ -136,9 +136,9 @@ function print_datetime() {
 }
 
 function log_base() {
-    lvl="$1"
-    msg="$2"
-    ts="$(print_datetime)"
+    local lvl="$1"
+    local msg="$2"
+    local ts="$(print_datetime)"
     >&2 echo "${BRIGHT}[$lvl] $ts${NORMAL} $msg"
 }
 
@@ -228,7 +228,7 @@ function git_delete_merged_feature_branches() {
 }
 
 function brew_install_if_necessary() {
-    prog=$1
+    local prog=$1
     if brew list "$prog" 2>/dev/null; then
         log_debug "$prog already installed"
     else
@@ -259,7 +259,7 @@ function gke_proxy() {
         error "must specify port env var, ex: port=9443 gke_proxy"
         return
     fi
-    running_gke_proxy_port="$(lsof -ti:$port)" 
+    local running_gke_proxy_port="$(lsof -ti:$port)" 
     if [ -n "$running_gke_proxy_port" ]; then
         log_warn "gke_proxy already running. pid=$running_gke_proxy_port"
         return
@@ -286,7 +286,7 @@ function gke_proxy_prod_us_central_1() {
 }
 
 function k9s_stage() {
-    port=9443
+    local port=9443
     if [ -z "$(lsof -i:$port)" ]; then
         error "proxy not running, start it with: kp"
         return
@@ -295,7 +295,7 @@ function k9s_stage() {
 }
 
 function k9s_prod() {
-    port=9444
+    local port=9444
     if [ -z "$(lsof -i:$port)" ]; then
         error "proxy not running, start it with: kpp"
         return
@@ -304,7 +304,7 @@ function k9s_prod() {
 }
 
 function k9s_prod_us_central_1() {
-    port=9445
+    local port=9445
     if [ -z "$(lsof -i:$port)" ]; then
         error "proxy not running, start it with: kppc"
         return
@@ -346,7 +346,35 @@ function dank_textify() {
             }
         }
         print res
-    }'
+	}'
+}
+
+# ( cd infra/squads ; SQUAD=asset make run env=stage project=fastly-smart-thumbs )
+function tf_shell() {
+	local squad=$1
+	local env=$2
+	local project=$3
+    if [ -z "$squad" ] || [ -z "$env" ] || [ -z "$project" ]; then
+    	log_error "Must specify squad, env, and project"
+		printf "Usage: $0 [squad] [env] [project]"
+		return 1
+    fi
+	cd "$HOME"/code/terraform/infra/squads
+    SQUAD="$squad" make run env="$env" project="$project"
+}
+
+function set_boulder_ngrok_postback_url() {
+    local public_url=$(curl http://localhost:4040/api/tunnels/boulder 2>/dev/null | jq '.public_url')
+    local tmpfile=$(mktemp)
+    (
+        cd "$HOME"/code/boulder
+        awk \
+            -v name=POSTBACK_URL \
+            -v value="$public_url" \
+            -f "$HOME"/replace-env-var.awk \
+            .env.local > "$tmpfile"
+        mv "$tmpfile" .env.local
+    )
 }
 
 # ##########################
